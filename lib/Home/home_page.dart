@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../size_config.dart';
+import '../core/size_config.dart';
 
  // Task model with priority and editing
  class Task {
@@ -99,28 +99,39 @@ import '../size_config.dart';
 
    void showEditDialog(int index) {
      final editController = TextEditingController(text: tasks[index].title);
-     showDialog(
+
+     showGeneralDialog(
        context: context,
-       builder: (_) => AlertDialog(
-         title: const Text('Edit Task'),
-         content: TextField(controller: editController),
-         actions: [
-           TextButton(
-             onPressed: () {
-               editTask(index, editController.text);
-               Navigator.pop(context);
-             },
-             child: const Text('Save'),
+       barrierDismissible: true,
+       barrierLabel: 'Edit',
+       pageBuilder: (_, __, ___) => const SizedBox.shrink(), // Required placeholder
+       transitionDuration: const Duration(milliseconds: 300),
+       transitionBuilder: (_, animation, __, child) {
+         return ScaleTransition(
+           scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+           child: AlertDialog(
+             title: const Text('Edit Task'),
+             content: TextField(controller: editController),
+             actions: [
+               TextButton(
+                 onPressed: () {
+                   editTask(index, editController.text);
+                   Navigator.pop(context);
+                 },
+                 child: const Text('Save'),
+               ),
+             ],
            ),
-         ],
-       ),
+         );
+       },
      );
    }
+
 
    @override
    Widget build(BuildContext context) {
      return Scaffold(
-       appBar: AppBar(title: const Text('To-Do List Enhanced')),
+       appBar: AppBar(title: const Text('To-Do List')),
        body: Padding(
          padding: const EdgeInsets.all(16.0),
          child: Column(
@@ -226,9 +237,18 @@ import '../size_config.dart';
              DropdownButton<int>(
                value: selectedPriority,
                items: const [
-                 DropdownMenuItem(value: 1, child: Text("High")),
-                 DropdownMenuItem(value: 2, child: Text("Medium")),
-                 DropdownMenuItem(value: 3, child: Text("Low")),
+                 DropdownMenuItem(value: 1, child: Padding(
+                   padding: EdgeInsets.all(8.0),
+                   child: Text("High"),
+                 )),
+                 DropdownMenuItem(value: 2, child: Padding(
+                   padding: EdgeInsets.all(8.0),
+                   child: Text("Medium"),
+                 )),
+                 DropdownMenuItem(value: 3, child: Padding(
+                   padding: EdgeInsets.all(8.0),
+                   child: Text("Low"),
+                 )),
                ],
                onChanged: onPriorityChanged,
              ),
